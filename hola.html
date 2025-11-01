@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <title>Formulario de Registro</title>
+ <script src="https://cdn.tailwindcss.com"></script>
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+ <style id="app-style">
+  .form-container {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  .form-input:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+  }
+  .form-input.border-red-500:focus {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+  }
+  .error-message {
+    font-size: 0.75rem;
+    height: 1rem;
+  }
+  .success-animation {
+    animation: fadeIn 0.5s ease-in;
+  }
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .slide-up {
+    animation: slideUp 0.5s ease-out forwards;
+  }
+  @keyframes slideUp {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+  }
+</style>
+
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+ <div class="form-container bg-white rounded-lg shadow-lg p-8 w-full">
+  <div id="form-content">
+   <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">Registro de Usuario</h1>
+  
+      <form 
+    id="registration-form" 
+    class="space-y-4" 
+    name="registro-usuario" 
+    method="POST" 
+    data-netlify="true" 
+    netlify-honeypot="bot-field"
+   >
+        <input type="hidden" name="form-name" value="registro-usuario" />
+    <input type="hidden" name="bot-field" /> 
+
+    <div>
+     <label for="firstName" class="block text-sm font-medium text-gray-700 mb-1">Nombres</label>
+     <input type="text" id="firstName" name="firstName" class="form-input w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="Ingresa tu nombre" required>
+     <p class="error-message text-red-500 mt-1" id="firstName-error"></p>
+    </div>
+   
+        <div>
+     <label for="lastName" class="block text-sm font-medium text-gray-700 mb-1">Apellidos</label>
+     <input type="text" id="lastName" name="lastName" class="form-input w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="Ingresa tus apellidos" required>
+     <p class="error-message text-red-500 mt-1" id="lastName-error"></p>
+    </div>
+   
+        <div>
+     <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
+     <input type="text" id="username" name="username" class="form-input w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="Crea un nombre de usuario" required>
+     <p class="error-message text-red-500 mt-1" id="username-error"></p>
+    </div>
+   
+        <div>
+     <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
+     <input type="email" id="email" name="email" class="form-input w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="ejemplo@correo.com" required>
+     <p class="error-message text-red-500 mt-1" id="email-error"></p>
+    </div>
+   
+        <div>
+     <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+     <div class="relative">
+      <input type="password" id="password" name="password" class="form-input w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none pr-10" placeholder="Crea una contraseña" required>
+      <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 focus:outline-none">
+       <i class="fas fa-eye"></i>
+      </button>
+     </div>
+     <p class="error-message text-red-500 mt-1" id="password-error"></p>
+     <p class="text-xs text-gray-500 mt-1">Mínimo 8 caracteres</p>
+    </div>
+   
+    <div class="pt-4">
+     <button type="submit" id="submit-button" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
+      Enviar registro
+     </button>
+    </div>
+   </form>
+  </div>
+ 
+  <div id="success-message" class="hidden text-center py-10">
+   <div class="text-green-500 text-5xl mb-4">
+    <i class="fas fa-check-circle"></i>
+   </div>
+   <h2 class="text-2xl font-bold text-gray-800 mb-2">¡Registro exitoso!</h2>
+   <p class="text-gray-600 mb-6">Tus datos han sido enviados correctamente.</p>
+   <button id="restart-form" class="text-indigo-600 hover:text-indigo-800 font-medium">
+    Registrar otro usuario
+   </button>
+  </div>
+ </div>
+
+ <script id="app-script">
+  document.addEventListener('DOMContentLoaded', () => {
+   const form = document.getElementById('registration-form');
+   const submitButton = document.getElementById('submit-button');
+   const formContent = document.getElementById('form-content');
+   const successMessage = document.getElementById('success-message');
+   const restartButton = document.getElementById('restart-form');
+   const togglePasswordButton = document.getElementById('toggle-password');
+   const passwordInput = document.getElementById('password');
+  
+   // Form fields
+   const firstName = document.getElementById('firstName');
+   const lastName = document.getElementById('lastName');
+   const username = document.getElementById('username');
+   const email = document.getElementById('email');
+   const password = document.getElementById('password');
+  
+   // Error messages
+   const firstNameError = document.getElementById('firstName-error');
+   const lastNameError = document.getElementById('lastName-error');
+   const usernameError = document.getElementById('username-error');
+   const emailError = document.getElementById('email-error');
+   const passwordError = document.getElementById('password-error');
+  
+   // Regex for validation
+   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+   const nameRegex = /^[A-Za-zñÑáéíóúÁÉÍÓÚ\s'-]+$/;
+  
+   // Helper function to set/clear error state
+   const setError = (input, errorElement, message) => {
+    errorElement.textContent = message;
+    if (message) {
+     input.classList.add('border-red-500');
+    } else {
+     input.classList.remove('border-red-500');
+    }
+   };
+  
+   // Toggle password visibility
+   togglePasswordButton.addEventListener('click', () => {
+    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordInput.setAttribute('type', type);
+    togglePasswordButton.innerHTML = type === 'password'
+     ? '<i class="fas fa-eye"></i>'
+     : '<i class="fas fa-eye-slash"></i>';
+   });
+  
+   // Validate form fields and update submit button state
+   const validateForm = () => {
+    let isValid = true;
+   
+    // Validate first name
+    const trimmedFirstName = firstName.value.trim();
+    if (!trimmedFirstName) {
+     setError(firstName, firstNameError, 'Por favor ingresa tu nombre');
+     isValid = false;
+    } else if (!nameRegex.test(trimmedFirstName)) {
+     setError(firstName, firstNameError, 'El nombre solo debe contener letras y espacios');
+     isValid = false;
+    } else {
+     setError(firstName, firstNameError, '');
+    }
+   
+    // Validate last name
+    const trimmedLastName = lastName.value.trim();
+    if (!trimmedLastName) {
+     setError(lastName, lastNameError, 'Por favor ingresa tus apellidos');
+     isValid = false;
+    } else if (!nameRegex.test(trimmedLastName)) {
+     setError(lastName, lastNameError, 'El apellido solo debe contener letras y espacios');
+     isValid = false;
+    } else {
+     setError(lastName, lastNameError, '');
+    }
+   
+    // Validate username
+    if (!username.value.trim()) {
+     setError(username, usernameError, 'Por favor crea un nombre de usuario');
+     isValid = false;
+    } else {
+     setError(username, usernameError, '');
+    }
+   
+    // Validate email
+    const trimmedEmail = email.value.trim();
+    if (!trimmedEmail) {
+     setError(email, emailError, 'Por favor ingresa tu correo electrónico');
+     isValid = false;
+    } else if (!emailRegex.test(trimmedEmail)) {
+     setError(email, emailError, 'Por favor ingresa un correo electrónico válido');
+     isValid = false;
+    } else {
+     setError(email, emailError, '');
+    }
+   
+    // Validate password
+    if (!password.value) {
+     setError(password, passwordError, 'Por favor crea una contraseña');
+     isValid = false;
+    } else if (password.value.length < 8) {
+     setError(password, passwordError, 'La contraseña debe tener al menos 8 caracteres');
+     isValid = false;
+    } else {
+     setError(password, passwordError, '');
+    }
+   
+    // Update submit button state
+    submitButton.disabled = !isValid;
+    return isValid;
+   };
+  
+   // Add input and blur event listeners
+   [firstName, lastName, username, email, password].forEach(field => {
+    field.addEventListener('input', validateForm);
+    field.addEventListener('blur', validateForm);
+   });
+  
+   // 2. MODIFICACIÓN CRUCIAL PARA NETLIFY FORMS: ELIMINAMOS EL BLOQUE FETCH/AJAX
+   form.addEventListener('submit', (e) => {
+   
+    if (!validateForm()) {
+     e.preventDefault(); // Si la validación falla, prevenimos el envío nativo.
+     return;
+    }
+    // Si la validación pasa, permitimos el envío nativo del formulario.
+   
+    // Ocultamos el botón y mostramos el mensaje de "Enviando..."
+    submitButton.disabled = true;
+    submitButton.textContent = 'Enviando...';
+   
+    // Netlify se encarga de procesar el POST nativo. 
+    // Para ver los datos, debes revisar el panel de Netlify.
+   });
+  
+   // Netlify se encarga de la redirección después del envío. 
+   // El código de éxito y reinicio ya no se usa con Netlify por defecto.
+   // Si deseas una página de éxito personalizada, puedes añadir un campo: 
+   // <input type="hidden" name="redirect" value="/pagina-gracias" />
+   
+   // Reset form for new submission (Este bloque se mantiene para el botón 'Registrar otro usuario')
+   restartButton.addEventListener('click', () => {
+    form.reset();
+    successMessage.classList.add('hidden');
+    successMessage.classList.remove('success-animation');
+    formContent.style.display = 'block';
+    formContent.classList.remove('slide-up');
+   
+    // Limpiar todos los estados de error
+    [firstName, lastName, username, email, password].forEach(field => {
+     field.classList.remove('border-red-500');
+    });
+    [firstNameError, lastNameError, usernameError, emailError, passwordError].forEach(error => {
+     error.textContent = '';
+    });
+   
+    submitButton.disabled = true;
+   });
+  
+   // Initial form validation on load
+   validateForm();
+  });
+ </script>
+</body>
+</html>
